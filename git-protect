@@ -1,0 +1,32 @@
+#! /bin/bash
+
+# Parse commands and options
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  case $key in
+  -h|--help)
+    _HELP=1
+    ;;
+  -e|--endanger)
+    _ENDANGER=1
+    ;;
+  *)
+    # Save unmatched arguments
+    _commands="$_commands $key"
+    ;;
+  esac
+  shift || true
+done
+
+set -- $_commands
+
+[ -z "$1" ] && _HELP=1
+
+if [ "$_HELP" ]; then cat >&2 <<EOS
+Usage: git protect [options] <arg1[, arg2, ...]>
+Options:
+  -h,--help        Show this help and exit
+  -e,--endanger    Remove protection
+EOS
+exit; fi
