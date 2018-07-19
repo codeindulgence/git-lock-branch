@@ -39,16 +39,36 @@ Options:
 EOS
 exit; fi
 
-# If there is no existing pre-commit, then create it
-if [ ! -f "$precommitfile" ]; then
-cat > $precommitfile <<EOS
-#! /bin/bash
+# List rules in LIST mode
+if [ -n "$_LIST" ]; then
+  grep GITPROTECT_ $precommitfile | awk '{print substr($NF,12)}'
+  exit
+fi
 
+# If hook script exists make sure it's sh/bash
+if [ -f "$precommitfile" ]; then
+  head -n 1 $precommitfile | grep -q 'bash' || {
+    echo Existing pre-commit script does not appear to be sh/bash
+    echo Unable to install
+    exit 1
+  }
+
+# If there is no existing pre-commit, then create it
+else
+  echo "#! /bin/bash" > $precommitfile
+  chmod +x $precommitfile
+  echo Initialized pre-commit hook.
+fi
+
+# Initialize git-protect if necessary
+grep -q git-protect $precommitfile || {
+  cat >> $precommitfile <<EOS
+
+# git-protect
 branch=\$(git rev-parse --abbrev-ref HEAD)
 EOS
-chmod +x $precommitfile
-echo Initialized pre-commit hook.
-fi
+  echo Initialized git-protect
+}
 
 # List rules in LIST mode
 if [ -n "$_LIST" ]; then
@@ -64,12 +84,9 @@ if [ -n "$_ENDANGER" ]; then
 fi
 
 # Add specified branch rule
-grep -q "GITPROTECT_${_BRANCH}" $precommitfile && \
-{
-echo "Branch $_BRANCH already protected."
-} || {
+grep -q "GITPROTECT_${_BRANCH}" $precommitfile || {
 cat >> $precommitfile <<EOS
-[ "\$branch" = "$_BRANCH" ] && echo "$_BRANCH is protected" && exit 1 # GITPROTECT_$_BRANCH
+[ "\$branch" = "$_BRANCH" ] && echo "\$branch is protected" && exit 1 # GITPROTECT_$_BRANCH
 EOS
-echo "Branch $_BRANCH now protected."
 }
+echo "$_BRANCH protected."
