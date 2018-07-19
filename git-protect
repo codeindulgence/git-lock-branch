@@ -1,4 +1,6 @@
-#! /bin/bash
+#! /bin/sh
+
+precommitfile=.git/hooks/pre-commit
 
 # Parse commands and options
 while [[ $# -gt 0 ]]; do
@@ -21,7 +23,9 @@ done
 
 set -- $_commands
 
-[ -z "$1" ] && _HELP=1
+_BRANCH="$1"
+
+[ -z "$_BRANCH" ] && _HELP=1
 
 if [ "$_HELP" ]; then cat >&2 <<EOS
 Usage: git protect [options] <arg1[, arg2, ...]>
@@ -30,3 +34,25 @@ Options:
   -e,--endanger    Remove protection
 EOS
 exit; fi
+
+# If there is no existing pre-commit, then create it
+if [ ! -f "$precommitfile" ]; then
+cat > $precommitfile <<EOS
+#! /bin/bash
+
+branch=\$(git rev-parse --abbrev-ref HEAD)
+EOS
+chmod +x $precommitfile
+echo Initialized pre-commit hook.
+fi
+
+# Add specified branch rule
+grep -q "PROTECT_${_BRANCH}" $precommitfile && \
+{
+echo Branch "$_BRANCH" already protected.
+} || {
+cat >> $precommitfile <<EOS
+[ "\$branch" = "$_BRANCH" ] && echo "$_BRANCH is protected" && exit 1 # PROTECT_$_BRANCH
+EOS
+echo Branch "$_BRANCH" now protected.
+}
