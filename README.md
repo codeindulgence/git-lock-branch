@@ -24,15 +24,6 @@ From your git repo directory, just run:
 git protect <branchname>
 ```
 
-That's it!
+Now when you try to commit to that branch you will see "<branch> is protected"
 
-Also "unprotect" (endanger?) a branch with:
-
-```
-git protect -e <branchname>
-```
-
-How It Works
-------------
-
-TBC
+Run `git protect -h` for more options
