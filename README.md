@@ -1,5 +1,5 @@
-Git Protect
-===========
+Git Protect Branch
+==================
 
 Protect your local branches from yourself.
 
@@ -13,14 +13,14 @@ branching and pull requests.
 And sometimes you forget that and make commits to your local branches that have
 protected remotes.
 
-Using `git protect` you can avoid this!
+Using `git protect-branch` you can avoid this!
 
 
 Installation
 ------------
 
-Put `git-protect` somewhere on your PATH. Git is smart enough to figure out the
-rest.
+Put `git-protect-branch` somewhere on your PATH. Git is smart enough to figure
+out the rest.
 
 
 Usage
@@ -29,9 +29,9 @@ Usage
 From your git repo directory, just run:
 
 ```
-git protect <branchname>
+git protect-branch <branchname>
 ```
 
 Now when you try to commit to that branch you will see "<branch> is protected"
 
-Run `git protect -h` for more options
+Run `git protect-branch -h` for more options

@@ -31,7 +31,7 @@ _BRANCH="$1"
 [ -z "$_BRANCH" -a -z "$_LIST" ] && _HELP=1
 
 if [ "$_HELP" ]; then cat >&2 <<EOS
-Usage: git protect [options] <branch>
+Usage: git protect-branch [options] <branch>
 Options:
   -h,--help    Show this help and exit
   -e           Remove protection
@@ -61,10 +61,10 @@ else
 fi
 
 # Initialize git-protect if necessary
-grep -q git-protect $precommitfile || {
+grep -q git-protect-branch $precommitfile || {
   cat >> $precommitfile <<EOS
 
-# git-protect
+# git-protect-branch
 branch=\$(git rev-parse --abbrev-ref HEAD)
 EOS
   echo Initialized git-protect
