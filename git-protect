@@ -13,6 +13,9 @@ while [[ $# -gt 0 ]]; do
   -e)
     _ENDANGER=1
     ;;
+  -l)
+    _LIST=1
+    ;;
   *)
     # Save unmatched arguments
     _commands="$_commands $key"
@@ -25,13 +28,14 @@ set -- $_commands
 
 _BRANCH="$1"
 
-[ -z "$_BRANCH" ] && _HELP=1
+[ -z "$_BRANCH" -a -z "$_LIST" ] && _HELP=1
 
 if [ "$_HELP" ]; then cat >&2 <<EOS
-Usage: git protect [options] <arg1[, arg2, ...]>
+Usage: git protect [options] <branch>
 Options:
   -h,--help    Show this help and exit
-  -e,          Remove protection
+  -e           Remove protection
+  -l           List current protections
 EOS
 exit; fi
 
@@ -46,20 +50,26 @@ chmod +x $precommitfile
 echo Initialized pre-commit hook.
 fi
 
+# List rules in LIST mode
+if [ -n "$_LIST" ]; then
+  grep GITPROTECT $precommitfile | awk '{print substr($NF,12)}'
+  exit
+fi
+
 # Delete rules in ENDANGER mode
 if [ -n "$_ENDANGER" ]; then
-  sed -i "/PROTECT_$_BRANCH/d" $precommitfile
+  sed -i "/GITPROTECT_$_BRANCH/d" $precommitfile
   echo "Branch $_BRANCH is not protected!"
   exit
 fi
 
 # Add specified branch rule
-grep -q "PROTECT_${_BRANCH}" $precommitfile && \
+grep -q "GITPROTECT_${_BRANCH}" $precommitfile && \
 {
 echo "Branch $_BRANCH already protected."
 } || {
 cat >> $precommitfile <<EOS
-[ "\$branch" = "$_BRANCH" ] && echo "$_BRANCH is protected" && exit 1 # PROTECT_$_BRANCH
+[ "\$branch" = "$_BRANCH" ] && echo "$_BRANCH is protected" && exit 1 # GITPROTECT_$_BRANCH
 EOS
 echo "Branch $_BRANCH now protected."
 }
