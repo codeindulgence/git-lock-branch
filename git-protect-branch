@@ -86,7 +86,7 @@ fi
 # Add specified branch rule
 grep -q "GITPROTECT_${_BRANCH}" $precommitfile || {
 cat >> $precommitfile <<EOS
-[ "\$branch" = "$_BRANCH" ] && echo "\$branch is protected" && exit 1 # GITPROTECT_$_BRANCH
+[ "\$branch" = "$_BRANCH" ] && (echo "\$branch is protected" && exit 1) || exit 0 # GITPROTECT_$_BRANCH
 EOS
 }
 echo "$_BRANCH protected."
