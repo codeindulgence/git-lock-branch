@@ -1,7 +1,7 @@
 Git Protect
 ===========
 
-Protect your local branches.
+Protect your local branches from yourself.
 
 Introduction
 ------------
@@ -14,6 +14,14 @@ And sometimes you forget that and make commits to your local branches that have
 protected remotes.
 
 Using `git protect` you can avoid this!
+
+
+Installation
+------------
+
+Put `git-protect` somewhere on your PATH. Git is smart enough to figure out the
+rest.
+
 
 Usage
 -----
