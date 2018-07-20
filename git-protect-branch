@@ -37,7 +37,8 @@ Options:
   -e           Remove protection
   -l           List current protections
 EOS
-exit; fi
+exit 1;
+fi
 
 # List rules in LIST mode
 if [ -n "$_LIST" ]; then
