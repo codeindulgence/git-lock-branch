@@ -50,3 +50,16 @@ EOS
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 0 ]
 }
+
+@test "not compatible with existing non-shell hook" {
+  cat > $hookfile <<EOS
+#! /usr/bin/python
+# Existing_hook_file_content
+EOS
+  run $cmd branch
+  [ "${lines[0]}" = "Existing pre-commit script does not appear to be sh/bash" ]
+  run grep Existing_hook_file_content $hookfile
+  [ "$status" -eq 0 ]
+  run grep GITPROTECT_branch $hookfile
+  [ "$status" -eq 1 ]
+}
