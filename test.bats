@@ -20,12 +20,15 @@ teardown() {
 @test "branch name creates hook" {
   [ ! -f $hookfile ]
   run $cmd branch
+  [ "${lines[0]}" = "Initialized pre-commit hook" ]
+  [ "${lines[1]}" = "Initialized git-protect-branch" ]
   [ -f $hookfile ]
 }
 
 @test "branch name adds branch rule" {
   run $cmd branch
   [ "$status" -eq 0 ]
+  [ "${lines[2]}" = "branch protected" ]
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 0 ]
 }
@@ -37,6 +40,14 @@ teardown() {
   $cmd -e branch
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 1 ]
+}
+
+@test "-l lists protected branches" {
+  $cmd branch1
+  $cmd branch2
+  run $cmd -l
+  [ "${lines[0]}" = "branch1" ]
+  [ "${lines[1]}" = "branch2" ]
 }
 
 @test "existing hook file is maintained" {

@@ -58,7 +58,7 @@ if [ -f "$precommitfile" ]; then
 else
   echo "#! /bin/bash" > $precommitfile
   chmod +x $precommitfile
-  echo Initialized pre-commit hook.
+  echo Initialized pre-commit hook
 fi
 
 # Initialize git-protect if necessary
@@ -68,7 +68,7 @@ grep -q git-protect-branch $precommitfile || {
 # git-protect-branch
 branch=\$(git rev-parse --abbrev-ref HEAD)
 EOS
-  echo Initialized git-protect
+  echo Initialized git-protect-branch
 }
 
 # List rules in LIST mode
@@ -90,4 +90,4 @@ cat >> $precommitfile <<EOS
 [ "\$branch" = "$_BRANCH" ] && (echo "\$branch is protected" && exit 1) || exit 0 # GITPROTECT_$_BRANCH
 EOS
 }
-echo "$_BRANCH protected."
+echo "$_BRANCH protected"
