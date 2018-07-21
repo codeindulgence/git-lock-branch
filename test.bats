@@ -31,10 +31,22 @@ teardown() {
 }
 
 @test "-e removes the branch rule" {
-  run $cmd branch
+  $cmd branch
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 0 ]
-  run $cmd -e branch
+  $cmd -e branch
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 1 ]
+}
+
+@test "existing hook file is maintained" {
+  cat > $hookfile <<EOS
+#! /bin/bash
+# Existing_hook_file_content
+EOS
+  $cmd branch
+  run grep Existing_hook_file_content $hookfile
+  [ "$status" -eq 0 ]
+  run grep GITPROTECT_branch $hookfile
+  [ "$status" -eq 0 ]
 }
