@@ -11,22 +11,30 @@ teardown() {
   rm -rf $testrepo
 }
 
-@test "invoking with no options prints help" {
+@test "no options prints help" {
   run $cmd
   [ "$status" -eq 1 ]
   [ "${lines[0]}" = "Usage: git protect-branch [options] <branch>" ]
 }
 
-@test "invoking with a branch name creates hook" {
-  # No pre-commit file exists to begin with
+@test "branch name creates hook" {
   [ ! -f $hookfile ]
   run $cmd branch
   [ -f $hookfile ]
 }
 
-@test "invoking adds branch rule" {
+@test "branch name adds branch rule" {
   run $cmd branch
   [ "$status" -eq 0 ]
-  run grep branch $hookfile
+  run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 0 ]
+}
+
+@test "-e removes the branch rule" {
+  run $cmd branch
+  run grep GITPROTECT_branch $hookfile
+  [ "$status" -eq 0 ]
+  run $cmd -e branch
+  run grep GITPROTECT_branch $hookfile
+  [ "$status" -eq 1 ]
 }
