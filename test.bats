@@ -42,6 +42,19 @@ teardown() {
   [ "$status" -eq 1 ]
 }
 
+@test "-l prints nothing when hook doesn't exist" {
+  touch $hookfile
+  run $cmd -l
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "" ]
+}
+
+@test "-l prints nothing when lock uninitialized" {
+  run $cmd -l
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "" ]
+}
+
 @test "-l lists locked branches" {
   $cmd branch1
   $cmd branch2

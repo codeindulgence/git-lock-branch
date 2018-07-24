@@ -42,6 +42,8 @@ fi
 
 # List rules in LIST mode
 if [ -n "$_LIST" ]; then
+  [ -f $precommitfile ] || exit 0
+  grep -q git-lock-branch $precommitfile || exit 0
   grep GITLOCK_ $precommitfile | awk '{print substr($NF,9)}' | sort
   exit
 fi
