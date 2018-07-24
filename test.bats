@@ -74,3 +74,11 @@ EOS
   run grep GITPROTECT_branch $hookfile
   [ "$status" -eq 1 ]
 }
+
+@test "unprotected branches allow commits" {
+  $cmd somebranch
+  echo something > somefile
+  git add somefile
+  run git commit --no-gpg-sign -m somemessage
+  [ "$status" -eq 0 ]
+}

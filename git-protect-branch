@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /usr/bin/env bash
 
 precommitfile=.git/hooks/pre-commit
 
@@ -42,7 +42,7 @@ fi
 
 # List rules in LIST mode
 if [ -n "$_LIST" ]; then
-  grep GITPROTECT_ $precommitfile | awk '{print substr($NF,12)}'
+  grep GITPROTECT_ $precommitfile | awk '{print substr($NF,12)}' | sort
   exit
 fi
 
@@ -56,7 +56,7 @@ if [ -f "$precommitfile" ]; then
 
 # If there is no existing pre-commit, then create it
 else
-  echo "#! /bin/bash" > $precommitfile
+  echo "#! /usr/bin/env bash" > $precommitfile
   chmod +x $precommitfile
   echo Initialized pre-commit hook
 fi
@@ -66,16 +66,15 @@ grep -q git-protect-branch $precommitfile || {
   cat >> $precommitfile <<EOS
 
 # git-protect-branch
+declare -A protectedbranches # GITPROTECTEDBRANCHES
 branch=\$(git rev-parse --abbrev-ref HEAD)
+if [ -n "\${protectedbranches[\$branch]}" ]; then
+  echo "\$branch is protected"
+  exit 1
+fi
 EOS
   echo Initialized git-protect-branch
 }
-
-# List rules in LIST mode
-if [ -n "$_LIST" ]; then
-  grep GITPROTECT $precommitfile | awk '{print substr($NF,12)}'
-  exit
-fi
 
 # Delete rules in ENDANGER mode
 if [ -n "$_ENDANGER" ]; then
@@ -85,9 +84,9 @@ if [ -n "$_ENDANGER" ]; then
 fi
 
 # Add specified branch rule
-grep -q "GITPROTECT_${_BRANCH}" $precommitfile || {
-cat >> $precommitfile <<EOS
-[ "\$branch" = "$_BRANCH" ] && (echo "\$branch is protected" && exit 1) || exit 0 # GITPROTECT_$_BRANCH
-EOS
+marker="GITPROTECT_$_BRANCH"
+grep -q "$marker" $precommitfile || {
+  line="protectedbranches[$_BRANCH]=1 # $marker"
+  sed -i /GITPROTECTEDBRANCHES/a"$line" $precommitfile
 }
 echo "$_BRANCH protected"
