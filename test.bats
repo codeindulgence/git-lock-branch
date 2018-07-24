@@ -33,11 +33,11 @@ teardown() {
   [ "$status" -eq 0 ]
 }
 
-@test "-e removes the branch rule" {
+@test "-u removes the branch rule" {
   $cmd branch
   run grep GITLOCK_branch $hookfile
   [ "$status" -eq 0 ]
-  $cmd -e branch
+  $cmd -u branch
   run grep GITLOCK_branch $hookfile
   [ "$status" -eq 1 ]
 }

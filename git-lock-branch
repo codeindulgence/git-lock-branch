@@ -10,8 +10,8 @@ while [[ $# -gt 0 ]]; do
   -h|--help)
     _HELP=1
     ;;
-  -e)
-    _ENDANGER=1
+  -u)
+    _UNLOCK=1
     ;;
   -l)
     _LIST=1
@@ -34,7 +34,7 @@ if [ "$_HELP" ]; then cat >&2 <<EOS
 Usage: git lock-branch [options] <branch>
 Options:
   -h,--help    Show this help and exit
-  -e           Remove lock
+  -u           Unlock
   -l           List current locks
 EOS
 exit 1;
@@ -78,14 +78,14 @@ EOS
   echo Initialized git-lock-branch
 }
 
-# Delete rules in ENDANGER mode
-if [ -n "$_ENDANGER" ]; then
+# Unlock branch
+if [ -n "$_UNLOCK" ]; then
   sed -i "/GITLOCK_$_BRANCH/d" $precommitfile
   echo "Branch $_BRANCH is not locked!"
   exit
 fi
 
-# Add specified branch rule
+# Lock branch
 marker="GITLOCK_$_BRANCH"
 grep -q "$marker" $precommitfile || {
   line="lockedbranches[$_BRANCH]=1 # $marker"
