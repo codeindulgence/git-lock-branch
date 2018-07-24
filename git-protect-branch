@@ -49,7 +49,7 @@ fi
 # If hook script exists make sure it's sh/bash
 if [ -f "$precommitfile" ]; then
   head -n 1 $precommitfile | grep -q 'bash' || {
-    echo Existing pre-commit script does not appear to be sh/bash
+    echo Existing pre-commit script does not appear to be bash
     echo Unable to install
     exit 1
   }
