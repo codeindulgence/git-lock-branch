@@ -1,4 +1,4 @@
-Git Protect Branch
+Git Lock Branch
 ==================
 
 Protect your local branches from yourself.
@@ -13,13 +13,13 @@ branching and pull requests.
 And sometimes you forget that and make commits to your local branches that have
 protected remotes.
 
-Using `git protect-branch` you can avoid this!
+Using `git lock-branch` you can avoid this!
 
 
 Installation
 ------------
 
-Put `git-protect-branch` somewhere on your PATH. Git is smart enough to figure
+Put `git-lock-branch` somewhere on your PATH. Git is smart enough to figure
 out the rest.
 
 
@@ -29,9 +29,9 @@ Usage
 From your git repo directory, just run:
 
 ```
-git protect-branch <branchname>
+git lock-branch <branchname>
 ```
 
-Now when you try to commit to that branch you will see "<branch> is protected"
+Now when you try to commit to that branch you will see "<branch> is locked"
 
-Run `git protect-branch -h` for more options
+Run `git lock-branch -h` for more options

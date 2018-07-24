@@ -1,6 +1,6 @@
 testrepo=$PWD/testrepo$(date +%Y%m%d%H%M%S)
 hookfile=$testrepo/.git/hooks/pre-commit
-cmd=$PWD/git-protect-branch
+cmd=$PWD/git-lock-branch
 
 setup() {
   git init $testrepo
@@ -14,35 +14,35 @@ teardown() {
 @test "no options prints help" {
   run $cmd
   [ "$status" -eq 1 ]
-  [ "${lines[0]}" = "Usage: git protect-branch [options] <branch>" ]
+  [ "${lines[0]}" = "Usage: git lock-branch [options] <branch>" ]
 }
 
 @test "branch name creates hook" {
   [ ! -f $hookfile ]
   run $cmd branch
   [ "${lines[0]}" = "Initialized pre-commit hook" ]
-  [ "${lines[1]}" = "Initialized git-protect-branch" ]
+  [ "${lines[1]}" = "Initialized git-lock-branch" ]
   [ -f $hookfile ]
 }
 
 @test "branch name adds branch rule" {
   run $cmd branch
   [ "$status" -eq 0 ]
-  [ "${lines[2]}" = "branch protected" ]
-  run grep GITPROTECT_branch $hookfile
+  [ "${lines[2]}" = "branch locked" ]
+  run grep GITLOCK_branch $hookfile
   [ "$status" -eq 0 ]
 }
 
 @test "-e removes the branch rule" {
   $cmd branch
-  run grep GITPROTECT_branch $hookfile
+  run grep GITLOCK_branch $hookfile
   [ "$status" -eq 0 ]
   $cmd -e branch
-  run grep GITPROTECT_branch $hookfile
+  run grep GITLOCK_branch $hookfile
   [ "$status" -eq 1 ]
 }
 
-@test "-l lists protected branches" {
+@test "-l lists locked branches" {
   $cmd branch1
   $cmd branch2
   run $cmd -l
@@ -58,7 +58,7 @@ EOS
   $cmd branch
   run grep Existing_hook_file_content $hookfile
   [ "$status" -eq 0 ]
-  run grep GITPROTECT_branch $hookfile
+  run grep GITLOCK_branch $hookfile
   [ "$status" -eq 0 ]
 }
 
@@ -71,11 +71,11 @@ EOS
   [ "${lines[0]}" = "Existing pre-commit script does not appear to be bash" ]
   run grep Existing_hook_file_content $hookfile
   [ "$status" -eq 0 ]
-  run grep GITPROTECT_branch $hookfile
+  run grep GITLOCK_branch $hookfile
   [ "$status" -eq 1 ]
 }
 
-@test "unprotected branches allow commits" {
+@test "unlocked branches allow commits" {
   $cmd somebranch
   echo something > somefile
   git add somefile

@@ -31,18 +31,18 @@ _BRANCH="$1"
 [ -z "$_BRANCH" -a -z "$_LIST" ] && _HELP=1
 
 if [ "$_HELP" ]; then cat >&2 <<EOS
-Usage: git protect-branch [options] <branch>
+Usage: git lock-branch [options] <branch>
 Options:
   -h,--help    Show this help and exit
-  -e           Remove protection
-  -l           List current protections
+  -e           Remove lock
+  -l           List current locks
 EOS
 exit 1;
 fi
 
 # List rules in LIST mode
 if [ -n "$_LIST" ]; then
-  grep GITPROTECT_ $precommitfile | awk '{print substr($NF,12)}' | sort
+  grep GITLOCK_ $precommitfile | awk '{print substr($NF,9)}' | sort
   exit
 fi
 
@@ -61,32 +61,32 @@ else
   echo Initialized pre-commit hook
 fi
 
-# Initialize git-protect if necessary
-grep -q git-protect-branch $precommitfile || {
+# Initialize git-lock if necessary
+grep -q git-lock-branch $precommitfile || {
   cat >> $precommitfile <<EOS
 
-# git-protect-branch
-declare -A protectedbranches # GITPROTECTEDBRANCHES
+# git-lock-branch
+declare -A lockedbranches # GITLOCKEDBRANCHES
 branch=\$(git rev-parse --abbrev-ref HEAD)
-if [ -n "\${protectedbranches[\$branch]}" ]; then
-  echo "\$branch is protected"
+if [ -n "\${lockedbranches[\$branch]}" ]; then
+  echo "\$branch is locked"
   exit 1
 fi
 EOS
-  echo Initialized git-protect-branch
+  echo Initialized git-lock-branch
 }
 
 # Delete rules in ENDANGER mode
 if [ -n "$_ENDANGER" ]; then
-  sed -i "/GITPROTECT_$_BRANCH/d" $precommitfile
-  echo "Branch $_BRANCH is not protected!"
+  sed -i "/GITLOCK_$_BRANCH/d" $precommitfile
+  echo "Branch $_BRANCH is not locked!"
   exit
 fi
 
 # Add specified branch rule
-marker="GITPROTECT_$_BRANCH"
+marker="GITLOCK_$_BRANCH"
 grep -q "$marker" $precommitfile || {
-  line="protectedbranches[$_BRANCH]=1 # $marker"
-  sed -i /GITPROTECTEDBRANCHES/a"$line" $precommitfile
+  line="lockedbranches[$_BRANCH]=1 # $marker"
+  sed -i /GITLOCKEDBRANCHES/a"$line" $precommitfile
 }
-echo "$_BRANCH protected"
+echo "$_BRANCH locked"
