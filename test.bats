@@ -95,3 +95,12 @@ EOS
   run git commit --no-gpg-sign -m somemessage
   [ "$status" -eq 0 ]
 }
+
+@test "locked branches deny commits" {
+  $cmd master
+  echo something > somefile
+  git add somefile
+  run git commit --no-gpg-sign -m somemessage
+  [ "${lines[0]}" = "master is locked" ]
+  [ "$status" -eq 1 ]
+}

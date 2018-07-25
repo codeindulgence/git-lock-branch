@@ -64,7 +64,7 @@ init() {
 
 # git-lock-branch
 declare -A lockedbranches # GITLOCKEDBRANCHES
-branch=\$(git rev-parse --abbrev-ref HEAD)
+branch=\$(git symbolic-ref --short HEAD)
 if [ -n "\${lockedbranches[\$branch]}" ]; then
   echo "\$branch is locked"
   exit 1
