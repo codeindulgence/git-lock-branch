@@ -1,70 +1,65 @@
 #! /usr/bin/env bash
 
+# Constants
 precommitfile=.git/hooks/pre-commit
 
-# Parse commands and options
-while [[ $# -gt 0 ]]; do
-  key="$1"
+# Parse arguments
+parse() {
+  [ $# -eq 0 ] && usage
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h|--help) usage ;;
+    -l) list ;;
+    -u) _UNLOCK=1 ;;
+    *) _commands="$_commands $1" ;;
+    esac
+    shift || true
+  done
+}
 
-  case $key in
-  -h|--help)
-    _HELP=1
-    ;;
-  -u)
-    _UNLOCK=1
-    ;;
-  -l)
-    _LIST=1
-    ;;
-  *)
-    # Save unmatched arguments
-    _commands="$_commands $key"
-    ;;
-  esac
-  shift || true
-done
-
-set -- $_commands
-
-_BRANCH="$1"
-
-[ -z "$_BRANCH" -a -z "$_LIST" ] && _HELP=1
-
-if [ "$_HELP" ]; then cat >&2 <<EOS
+# Print usage
+usage() {
+  cat >&2 <<EOS
 Usage: git lock-branch [options] <branch>
 Options:
   -h,--help    Show this help and exit
   -u           Unlock
   -l           List current locks
 EOS
-exit 1;
-fi
+  exit 1;
+}
 
-# List rules in LIST mode
-if [ -n "$_LIST" ]; then
+# List locked branches
+list() {
   [ -f $precommitfile ] || exit 0
   grep -q git-lock-branch $precommitfile || exit 0
   grep GITLOCK_ $precommitfile | awk '{print substr($NF,9)}' | sort
   exit
-fi
+}
 
-# If hook script exists make sure it's sh/bash
-if [ -f "$precommitfile" ]; then
-  head -n 1 $precommitfile | grep -q 'bash' || {
-    echo Existing pre-commit script does not appear to be bash
-    echo Unable to install
-    exit 1
-  }
+# If hook script exists make sure it's bash
+checkhook() {
+  if [ -f "$precommitfile" ]; then
+    head -n 1 $precommitfile | grep -q 'bash' || {
+      echo Existing pre-commit script does not appear to be bash
+      echo Unable to install
+      exit 1
+    }
+  else
+    stub
+  fi
+}
 
 # If there is no existing pre-commit, then create it
-else
+stub() {
   echo "#! /usr/bin/env bash" > $precommitfile
   chmod +x $precommitfile
   echo Initialized pre-commit hook
-fi
+}
 
-# Initialize git-lock if necessary
-grep -q git-lock-branch $precommitfile || {
+# Initialize git-lock
+init() {
+  checkhook
   cat >> $precommitfile <<EOS
 
 # git-lock-branch
@@ -75,20 +70,38 @@ if [ -n "\${lockedbranches[\$branch]}" ]; then
   exit 1
 fi
 EOS
-  echo Initialized git-lock-branch
+    echo Initialized git-lock-branch
 }
 
 # Unlock branch
-if [ -n "$_UNLOCK" ]; then
-  sed -i "/GITLOCK_$_BRANCH/d" $precommitfile
-  echo "Branch $_BRANCH is not locked!"
+unlock() {
+  sed -i "/GITLOCK_$1/d" $precommitfile
+  echo "$1 unlocked!"
   exit
-fi
+}
 
 # Lock branch
-marker="GITLOCK_$_BRANCH"
-grep -q "$marker" $precommitfile || {
-  line="lockedbranches[$_BRANCH]=1 # $marker"
-  sed -i /GITLOCKEDBRANCHES/a"$line" $precommitfile
+lock() {
+  marker="GITLOCK_$1"
+  grep -q "$marker" $precommitfile || {
+    line="lockedbranches[$1]=1 # $marker"
+    sed -i /GITLOCKEDBRANCHES/a"$line" $precommitfile
+  }
+  echo "$1 locked"
 }
-echo "$_BRANCH locked"
+
+# Lock or unlock a branch
+run() {
+  set -- $_commands
+
+  init
+
+  if [ -n "$_UNLOCK" ]; then
+    unlock $1
+  else
+    lock $1
+  fi
+}
+
+parse "${@}"
+run
