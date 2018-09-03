@@ -31,9 +31,7 @@ EOS
 
 # List locked branches
 list() {
-  [ -f $precommitfile ] || exit 0
-  grep -q git-lock-branch $precommitfile || exit 0
-  grep GITLOCK_ $precommitfile | awk '{print substr($NF,9)}' | sort
+  git config --get-all branch.lock | sort -u
   exit
 }
 
@@ -60,33 +58,32 @@ stub() {
 # Initialize git-lock
 init() {
   checkhook
-  cat >> $precommitfile <<EOS
+  grep -q git-lock-branch $precommitfile || {
+    cat >> $precommitfile <<EOS
 
 # git-lock-branch
-declare -A lockedbranches # GITLOCKEDBRANCHES
 branch=\$(git symbolic-ref --short HEAD)
-if [ -n "\${lockedbranches[\$branch]}" ]; then
+git config --get-all branch.lock ^\$branch$ >/dev/null && {
   echo "\$branch is locked"
   exit 1
-fi
+} || {
+  exit 0
+}
+# /git-lock-branch
 EOS
     echo Initialized git-lock-branch
+  }
 }
 
 # Unlock branch
 unlock() {
-  sed -i "/GITLOCK_$1/d" $precommitfile
+  git config --unset branch.lock $1
   echo "$1 unlocked!"
-  exit
 }
 
 # Lock branch
 lock() {
-  marker="GITLOCK_$1"
-  grep -q "$marker" $precommitfile || {
-    line="lockedbranches[$1]=1 # $marker"
-    sed -i /GITLOCKEDBRANCHES/a"$line" $precommitfile
-  }
+  git config --add branch.lock $1
   echo "$1 locked"
 }
 

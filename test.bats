@@ -26,33 +26,33 @@ teardown() {
 }
 
 @test "branch name adds branch rule" {
-  run $cmd branch
+  run $cmd mybranch
   [ "$status" -eq 0 ]
-  [ "${lines[2]}" = "branch locked" ]
-  run grep GITLOCK_branch $hookfile
-  [ "$status" -eq 0 ]
+  [ "${lines[2]}" = "mybranch locked" ]
+  run git config --get-all branch.lock
+  [ "${lines[0]}" = "mybranch" ]
 }
 
 @test "-u removes the branch rule" {
-  $cmd branch
-  run grep GITLOCK_branch $hookfile
-  [ "$status" -eq 0 ]
-  $cmd -u branch
-  run grep GITLOCK_branch $hookfile
-  [ "$status" -eq 1 ]
+  $cmd mybranch
+  run git config --get-all branch.lock
+  [ "${lines[0]}" = "mybranch" ]
+  $cmd -u mybranch
+  run git config --get-all branch.lock
+  [ -z "$lines" ]
 }
 
 @test "-l prints nothing when hook doesn't exist" {
   touch $hookfile
   run $cmd -l
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "" ]
+  [ -z "$lines" ]
 }
 
 @test "-l prints nothing when lock uninitialized" {
   run $cmd -l
   [ "$status" -eq 0 ]
-  [ "${lines[0]}" = "" ]
+  [ -z "$lines" ]
 }
 
 @test "-l lists locked branches" {
@@ -71,7 +71,7 @@ EOS
   $cmd branch
   run grep Existing_hook_file_content $hookfile
   [ "$status" -eq 0 ]
-  run grep GITLOCK_branch $hookfile
+  run grep git-lock-branch $hookfile
   [ "$status" -eq 0 ]
 }
 
