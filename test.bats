@@ -133,3 +133,10 @@ EOS
   run git config --get-all branch.lock
   [ -z "$lines" ]
 }
+
+@test "-l works with .gitlock file" {
+  $cmd testbranch
+  $cmd -e
+  run $cmd -l
+  [ "${lines[0]}" = "testbranch" ]
+}

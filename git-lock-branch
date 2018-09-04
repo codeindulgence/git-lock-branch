@@ -37,7 +37,10 @@ EOS
 
 # List locked branches
 _list() {
-  git config --get-all branch.lock | sort -u
+  (
+    git config --get-all branch.lock | sort -u
+    [ -f .gitlock ] && cat .gitlock
+  ) | sort -u
 }
 
 # If hook script exists make sure it's bash
