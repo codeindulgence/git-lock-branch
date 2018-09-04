@@ -13,7 +13,7 @@ _parse() {
   while [[ $# -gt 0 ]]; do
     case $1 in
     -h|--help) _usage ;;
-    -l) _list ;;
+    -l) _list; exit ;;
     -u) _UNLOCK=1 ;;
     -e) _EXPORT=1 ;;
     *) _commands="$_commands $1" ;;
@@ -38,7 +38,6 @@ EOS
 # List locked branches
 _list() {
   git config --get-all branch.lock | sort -u
-  exit
 }
 
 # If hook script exists make sure it's bash
@@ -96,6 +95,7 @@ _lock() {
 # Export branches to .gitlock
 _export() {
   _list > .gitlock
+  git config --unset-all branch.lock
 }
 
 # Lock or unlock a branch

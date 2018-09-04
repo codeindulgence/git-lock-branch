@@ -130,4 +130,6 @@ EOS
   [ -f "$testrepo/.gitlock" ]
   run grep branch1 "$testrepo/.gitlock"
   [ "$status"  -eq 0 ]
+  run git config --get-all branch.lock
+  [ -z "$lines" ]
 }
