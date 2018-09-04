@@ -32,6 +32,6 @@ From your git repo directory, just run:
 git lock-branch <branchname>
 ```
 
-Now when you try to commit to that branch you will see "<branch> is locked"
+Now when you try to commit to that branch you will see `<branch> is locked`
 
 Run `git lock-branch -h` for more options
