@@ -38,25 +38,25 @@ teardown() {
 
 @test "branch name creates hook" {
   [ ! -f $hookfile ]
-  run $cmd branch
+  run $cmd testbranch
   [ "${lines[0]}" = "Initialized pre-commit hook" ]
   [ "${lines[1]}" = "Initialized git-lock-branch" ]
   [ -f $hookfile ]
 }
 
 @test "branch name adds branch rule" {
-  run $cmd mybranch
+  run $cmd testbranch
   [ "$status" -eq 0 ]
-  [ "${lines[2]}" = "mybranch locked" ]
+  [ "${lines[2]}" = "testbranch locked" ]
   run git config --get-all branch.lock
-  [ "${lines[0]}" = "mybranch" ]
+  [ "${lines[0]}" = "testbranch" ]
 }
 
 @test "-u removes the branch rule" {
-  $cmd mybranch
+  $cmd testbranch
   run git config --get-all branch.lock
-  [ "${lines[0]}" = "mybranch" ]
-  $cmd -u mybranch
+  [ "${lines[0]}" = "testbranch" ]
+  $cmd -u testbranch
   run git config --get-all branch.lock
   [ -z "$lines" ]
 }
@@ -75,11 +75,11 @@ teardown() {
 }
 
 @test "-l lists locked branches" {
-  $cmd branch1
-  $cmd branch2
+  $cmd testbranch1
+  $cmd testbranch2
   run $cmd -l
-  [ "${lines[0]}" = "branch1" ]
-  [ "${lines[1]}" = "branch2" ]
+  [ "${lines[0]}" = "testbranch1" ]
+  [ "${lines[1]}" = "testbranch2" ]
 }
 
 @test "existing hook file is maintained" {
@@ -87,7 +87,7 @@ teardown() {
 #! /bin/bash
 # Existing_hook_file_content
 EOS
-  $cmd branch
+  $cmd testbranch
   run grep Existing_hook_file_content $hookfile
   [ "$status" -eq 0 ]
   run grep git-lock-branch $hookfile
@@ -99,7 +99,7 @@ EOS
 #! /bin/sh
 # Existing_hook_file_content
 EOS
-  run $cmd branch
+  run $cmd testbranch
   [ "${lines[0]}" = "Existing pre-commit script does not appear to be bash" ]
   run grep Existing_hook_file_content $hookfile
   [ "$status" -eq 0 ]
@@ -108,10 +108,10 @@ EOS
 }
 
 @test "unlocked branches allow commits" {
-  $cmd somebranch
+  $cmd testbranch
   echo something > somefile
   git add somefile
-  run git commit --no-gpg-sign -m somemessage
+  run git commit --no-gpg-sign -m testmessage
   [ "$status" -eq 0 ]
 }
 
@@ -125,10 +125,10 @@ EOS
 }
 
 @test "-e exports locked branches to .gitlock" {
-  $cmd branch1
+  $cmd testbranch
   $cmd -e
   [ -f "$testrepo/.gitlock" ]
-  run grep branch1 "$testrepo/.gitlock"
+  run grep testbranch "$testrepo/.gitlock"
   [ "$status"  -eq 0 ]
   run git config --get-all branch.lock
   [ -z "$lines" ]
