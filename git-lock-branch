@@ -8,11 +8,11 @@ fi
 precommitfile=$toplevel/.git/hooks/pre-commit
 
 # Parse arguments
-parse() {
-  [ $# -eq 0 ] && usage
+_parse() {
+  [ $# -eq 0 ] && _usage
   while [[ $# -gt 0 ]]; do
     case $1 in
-    -h|--help) usage ;;
+    -h|--help) _usage ;;
     -l) list ;;
     -u) _UNLOCK=1 ;;
     -e) _EXPORT=1 ;;
@@ -23,7 +23,7 @@ parse() {
 }
 
 # Print usage
-usage() {
+_usage() {
   cat >&2 <<EOS
 Usage: git lock-branch [options] <branch>
 Options:
@@ -62,7 +62,7 @@ stub() {
 }
 
 # Initialize git-lock
-init() {
+_init() {
   checkhook
   grep -q git-lock-branch $precommitfile || {
     cat >> $precommitfile <<EOS
@@ -82,36 +82,36 @@ EOS
 }
 
 # Unlock branch
-unlock() {
+_unlock() {
   git config --unset branch.lock $1
   echo "$1 unlocked!"
 }
 
 # Lock branch
-lock() {
+_lock() {
   git config --add branch.lock $1
   echo "$1 locked"
 }
 
 # Export branches to .gitlock
-export() {
+_export() {
   list > .gitlock
 }
 
 # Lock or unlock a branch
-run() {
+_run() {
   set -- $_commands
 
-  init
+  _init
 
   if [ -n "$_UNLOCK" ]; then
-    unlock $1
+    _unlock $1
   elif [ -n "$_EXPORT" ]; then
-    export
+    _export
   else
-    lock $1
+    _lock $1
   fi
 }
 
-parse "${@}"
-run
+_parse "${@}"
+_run
