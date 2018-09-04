@@ -119,6 +119,7 @@ EOS
   $cmd master
   run $cmd -c
   [ "$status" -eq 1 ]
+  [ "${lines[0]}" = "master is locked" ]
 }
 
 @test "locked branches deny commits" {

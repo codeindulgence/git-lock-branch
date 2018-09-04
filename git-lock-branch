@@ -87,7 +87,10 @@ EOS
 # Check current branch
 _check() {
   branch=$(git symbolic-ref --short HEAD)
-  _list | grep -qv $branch
+  _list | grep -q $branch && {
+    echo $branch is locked
+    exit 1
+  }
 }
 
 # Unlock branch
