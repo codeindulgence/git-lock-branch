@@ -16,6 +16,7 @@ _parse() {
     -l) _list; exit ;;
     -u) _UNLOCK=1 ;;
     -e) _EXPORT=1 ;;
+    -c) _CHECK=1 ;;
     *) _commands="$_commands $1" ;;
     esac
     shift || true
@@ -83,6 +84,12 @@ EOS
   }
 }
 
+# Check current branch
+_check() {
+  branch=$(git symbolic-ref --short HEAD)
+  _list | grep -qv $branch
+}
+
 # Unlock branch
 _unlock() {
   git config --unset branch.lock $1
@@ -107,7 +114,9 @@ _run() {
 
   _init
 
-  if [ -n "$_UNLOCK" ]; then
+  if [ -n "$_CHECK" ]; then
+    _check
+  elif [ -n "$_UNLOCK" ]; then
     _unlock $1
   elif [ -n "$_EXPORT" ]; then
     _export

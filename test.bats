@@ -115,6 +115,12 @@ EOS
   [ "$status" -eq 0 ]
 }
 
+@test "-c exits with status 1 if current branch is locked" {
+  $cmd master
+  run $cmd -c
+  [ "$status" -eq 1 ]
+}
+
 @test "locked branches deny commits" {
   $cmd master
   echo something > somefile
