@@ -15,6 +15,7 @@ parse() {
     -h|--help) usage ;;
     -l) list ;;
     -u) _UNLOCK=1 ;;
+    -e) _EXPORT=1 ;;
     *) _commands="$_commands $1" ;;
     esac
     shift || true
@@ -29,6 +30,7 @@ Options:
   -h,--help    Show this help and exit
   -u           Unlock
   -l           List current locks
+  -e           Export locked branches to .gitlock
 EOS
   exit 1;
 }
@@ -91,6 +93,11 @@ lock() {
   echo "$1 locked"
 }
 
+# Export branches to .gitlock
+export() {
+  list > .gitlock
+}
+
 # Lock or unlock a branch
 run() {
   set -- $_commands
@@ -99,6 +106,8 @@ run() {
 
   if [ -n "$_UNLOCK" ]; then
     unlock $1
+  elif [ -n "$_EXPORT" ]; then
+    export
   else
     lock $1
   fi

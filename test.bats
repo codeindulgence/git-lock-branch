@@ -123,3 +123,11 @@ EOS
   [ "${lines[0]}" = "master is locked" ]
   [ "$status" -eq 1 ]
 }
+
+@test "-e exports locked branches to .gitlock" {
+  $cmd branch1
+  $cmd -e
+  [ -f "$testrepo/.gitlock" ]
+  run grep branch1 "$testrepo/.gitlock"
+  [ "$status"  -eq 0 ]
+}
