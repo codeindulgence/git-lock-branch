@@ -17,6 +17,25 @@ teardown() {
   [ "${lines[0]}" = "Usage: git lock-branch [options] <branch>" ]
 }
 
+@test "works from subfolders" {
+  subfolder=$testrepo/subfolder
+  mkdir $subfolder
+  [ -d $subfolder ]
+  cd $subfolder
+  run $cmd
+  [ "$status" -eq 1 ]
+}
+
+@test "does not work outside git repo" {
+  subfolder=$(mktemp -d)
+  [ -d $subfolder ]
+  cd $subfolder
+  run $cmd
+  [ "$status" -eq 128 ]
+  [ "${lines[0]}" = "fatal: not a git repository (or any of the parent directories): .git" ]
+  rm -rf $subfolder
+}
+
 @test "branch name creates hook" {
   [ ! -f $hookfile ]
   run $cmd branch
