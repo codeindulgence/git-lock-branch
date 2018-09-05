@@ -1,7 +1,11 @@
 #! /usr/bin/env bash
 
 # Constants
-precommitfile=.git/hooks/pre-commit
+toplevel=$(git rev-parse --show-toplevel)
+if [ $? -ne 0 ]; then
+  exit 128
+fi
+precommitfile=$toplevel/.git/hooks/pre-commit
 
 # Parse arguments
 parse() {
