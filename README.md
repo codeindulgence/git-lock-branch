@@ -35,3 +35,15 @@ git lock-branch <branchname>
 Now when you try to commit to that branch you will see `<branch> is locked`
 
 Run `git lock-branch -h` for more options
+
+
+The gitlock file
+----------------
+
+Git Lock Branch allows you to export rules to a `.gitlock` file so that they
+can be version controlled to make sure your project team has the same rules!
+
+Simply run `git lock-branch -e` to export your locked branches to `.gitlock`.
+
+Branches added after the export will still be added internally, so either use
+`git lock-branch -e` again, or just update the `.gitlock` file manually.
