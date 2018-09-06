@@ -148,3 +148,13 @@ EOS
   run $cmd -l
   [ "${lines[0]}" = "testbranch" ]
 }
+
+@test ".gitlock used to lock branches" {
+  $cmd master
+  $cmd -e
+  echo something > somefile
+  git add somefile
+  run git commit --no-gpg-sign -m somemessage
+  [ "${lines[0]}" = "master is locked" ]
+  [ "$status" -eq 1 ]
+}
