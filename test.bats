@@ -158,3 +158,15 @@ EOS
   [ "${lines[0]}" = "master is locked" ]
   [ "$status" -eq 1 ]
 }
+
+@test "-u removes rules from .gitlock" {
+  $cmd testbranch1
+  $cmd testbranch2
+  $cmd -e
+  run $cmd -l
+  [ "${lines[0]}" = "testbranch1" ]
+  [ "${lines[1]}" = "testbranch2" ]
+  $cmd -u testbranch1
+  run $cmd -l
+  [ "${lines[0]}" = "testbranch2" ]
+}

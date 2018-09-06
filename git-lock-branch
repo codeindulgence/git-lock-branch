@@ -92,7 +92,11 @@ _check() {
 
 # Unlock branch
 _unlock() {
-  git config --unset branch.lock $1
+  if [ -f .gitlock ]; then
+    sed -i "/^$1$/d" .gitlock
+  else
+    git config --unset branch.lock $1
+  fi
   echo "$1 unlocked!"
 }
 
