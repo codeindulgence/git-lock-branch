@@ -40,7 +40,7 @@ EOS
 _list() {
   (
     git config --get-all branch.lock | sort -u
-    [ -f .gitlock ] && cat .gitlock
+    [ -f "$toplevel/.gitlock" ] && cat "$toplevel/.gitlock"
   ) | sort -u
 }
 
@@ -92,8 +92,8 @@ _check() {
 
 # Unlock branch
 _unlock() {
-  if [ -f .gitlock ]; then
-    sed -i "/^$1$/d" .gitlock
+  if [ -f "$toplevel/.gitlock" ]; then
+    sed -i "/^$1$/d" "$toplevel/.gitlock"
   else
     git config --unset branch.lock $1
   fi
@@ -108,7 +108,7 @@ _lock() {
 
 # Export branches to .gitlock
 _export() {
-  _list > .gitlock
+  _list > "$toplevel/.gitlock"
   git config --unset-all branch.lock
 }
 
