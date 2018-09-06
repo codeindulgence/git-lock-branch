@@ -108,7 +108,8 @@ _lock() {
 
 # Export branches to .gitlock
 _export() {
-  _list > "$toplevel/.gitlock"
+  _list > "$toplevel/.gitlocknew"
+  mv "$toplevel/.gitlocknew" "$toplevel/.gitlock"
   git config --unset-all branch.lock
 }
 

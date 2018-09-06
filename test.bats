@@ -170,3 +170,12 @@ EOS
   run $cmd -l
   [ "${lines[0]}" = "testbranch2" ]
 }
+
+@test "exporting new rules keeps previously exported rules" {
+  $cmd testbranch1
+  $cmd -e
+  $cmd testbranch2
+  $cmd -e
+  run grep testbranch1 .gitlock
+  [ "$status" -eq 0 ]
+}
