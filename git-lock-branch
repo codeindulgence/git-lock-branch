@@ -71,13 +71,7 @@ _init() {
     cat >> $precommitfile <<EOS
 
 # git-lock-branch
-branch=\$(git symbolic-ref --short HEAD)
-git config --get-all branch.lock ^\$branch$ >/dev/null && {
-  echo "\$branch is locked"
-  exit 1
-} || {
-  exit 0
-}
+git lock-branch -c
 # /git-lock-branch
 EOS
     echo Initialized git-lock-branch
@@ -90,6 +84,9 @@ _check() {
   _list | grep -q $branch && {
     echo $branch is locked
     exit 1
+  } || {
+    echo $branch is not locked
+    exit 0
   }
 }
 

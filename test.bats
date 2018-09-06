@@ -5,6 +5,7 @@ cmd=$PWD/git-lock-branch
 setup() {
   git init $testrepo
   cd $testrepo
+  export PATH="$PWD/..:$PATH"
 }
 
 teardown() {
